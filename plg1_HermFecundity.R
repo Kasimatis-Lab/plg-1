@@ -10,7 +10,7 @@ library(RColorBrewer)
 library(scales)
 
 #Read in data
-fecundity <- read.table("Dropbox/Plg-1/data_files/FileS5_Hermaphrodite_Total_Fecundity.txt", header = TRUE, sep = "\t")
+fecundity <- read.table("FileS5_Hermaphrodite_Total_Fecundity.txt", header = TRUE, sep = "\t")
 fecundity.censored <- subset(fecundity, Censor == 0 & Strain != "JU2526" & Strain != "QG4006")
 
 
@@ -32,7 +32,7 @@ summary(model2)
 
 
 #PGLS model
-support_tree <- read.tree("~/Downloads/WI.20250625.hard-filter.min4.tree")
+support_tree <- read.tree("WI.20250625.hard-filter.min4.tree")
 
 obj <- name.check(support_tree, levels(as.factor(fecundity.censored$Strain)), data.names = levels(as.factor(fecundity.censored$Strain)))
 tree.cut <- drop.tip(support_tree, obj$tree_not_data, keep.root.edgue = TRUE)
