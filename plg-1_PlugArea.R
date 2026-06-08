@@ -6,7 +6,7 @@ library(scales)
 library(reshape)
 
 #Read in plug size data
-size <- read.table("Dropbox/Plg-1/data_files/FileS5_PlugSize.txt", sep = "\t", header = TRUE)
+size <- read.table("FileS9_PlugArea.txt", sep = "\t", header = TRUE)
 size$Area <- as.numeric(size$Area)
 
 size.censor <- subset(size, Censor == 0 & is.na(Area) == FALSE)
