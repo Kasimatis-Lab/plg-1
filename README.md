@@ -5,7 +5,7 @@ For Figure 1 and associated analyses:
 - FileS2_Computational_Genotype.txt
 - FileS3_GenomeWide_Pi.txt
 - FileS4_Chromosome3_Pi.txt
-- plg-1_Genomics.R
+- plg-1_DiversityStatistics.R
 
 For Figure 2 and associated analyses:
 - FileS5_Hermaphrodite_Total_Fecundity.txt
