@@ -3,7 +3,7 @@ library(ggplot2)
 
 #### C. elegans ####
 #Read in data
-ce.pad.obs <- read.table("Dropbox/Plg-1/data_files/FileS7_CE_PlugSignaling.txt", header = TRUE, sep = "\t")
+ce.pad.obs <- read.table("FileS7_CE_PlugSignaling.txt", header = TRUE, sep = "\t")
 
 ce.pad.obs$crossGeno   <- interaction(ce.pad.obs$m1.geno, ce.pad.obs$m2.geno, sep = ".")
 ce.pad.obs$crossStrain <- interaction(ce.pad.obs$Male1, ce.pad.obs$Male2, sep = ".")
@@ -83,7 +83,7 @@ all <- ggplot(byStrain, aes(x = cross, y = freq, shape = factor(pair))) + ylim(0
 
 #### C. remanei ####
 #Read in data
-cre.pad.obs <- read.table("~/Dropbox/Plg-1/data_files/FileS8_Cre_PlugSignaling.txt", header = TRUE, sep = "\t")
+cre.pad.obs <- read.table("FileS8_Cre_PlugSignaling.txt", header = TRUE, sep = "\t")
 
 #Examine frequency by strain
 byStrainCre        <- as.data.frame(summarise(group_by(cre.pad.obs, Male), length(Sperm.Present), sum(Sperm.Present)))
