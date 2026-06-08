@@ -6,7 +6,7 @@ library(RColorBrewer)
 library(scales)
 
 #Read in pseudo-female fecundity data
-fem.fecundity <- read.table("~/Dropbox/Plg-1/data_files/FileS2_CaeNDR_Female_Fecundity.txt", header = TRUE, sep = "\t")
+fem.fecundity <- read.table("FileS2_PseudoFemale_Fecundity.txt", header = TRUE, sep = "\t")
 fem.fecundity.censored <- subset(fem.fecundity, Censor == 0)
 
 #Examine strain means
