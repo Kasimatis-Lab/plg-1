@@ -6,10 +6,10 @@ library(ggbeeswarm)
 
 #### Analyze Pi ####
 #Read in genetic diversity data (genome-wide)
-all.chrom <- read.table("Dropbox/Plg-1/data_files/FileS3_GenomeWide_Pi.txt", header = TRUE, sep = "\t")
+all.chrom <- read.table("FileS3_GenomeWide_Pi.txt", header = TRUE, sep = "\t")
 
 #Read in genetic diversity data (chromosome III)
-chr3 <- read.table("Dropbox/Plg-1/data_files/FileS4_Chromosome3_Pi.txt", header = TRUE, sep = "\t")
+chr3 <- read.table("FileS4_Chromosome3_Pi.txt", header = TRUE, sep = "\t")
 
 #Summarize pi genome-wide and test if the mean and distribution differs by plg-1 genotype
 summarize(group_by(all.chrom, status), mean(PI), sd(PI)/length(PI), min(PI), max(PI))
@@ -43,7 +43,7 @@ variants <- p1 + geom_quasirandom(data = x, aes(x = status, y = N_VARIANTS),
 
 #### Analyze Computationally Inferred Genotype Data ####
 #Read in genotypes
-geno <- read.table("Dropbox/Plg-1/data_files/FileS2_Computational_Genotype.txt", header = TRUE, sep = "\t")
+geno <- read.table("FileS2_Computational_Genotype.txt", header = TRUE, sep = "\t")
 
 table(geno$plugging_status)
 
@@ -52,7 +52,7 @@ t.test(subset(geno$cer1_copies, geno$plugging_status=="plugging"), subset(geno$c
 
 
 #Color phylogeny by genotype
-full_tree <- read.tree("Downloads/WI.20250625.hard-filter.min4.tree")
+full_tree <- read.tree("WI.20250625.hard-filter.min4.tree")
 ##Order to match tree order
 plot_ord <- full_tree$tip.label
 geno.plotting <- geno[, 1:3]
