@@ -13,12 +13,12 @@ chr3 <- read.table("FileS4_Chromosome3_Pi.txt", header = TRUE, sep = "\t")
 
 #Summarize pi genome-wide and test if the mean and distribution differs by plg-1 genotype
 summarize(group_by(all.chrom, status), mean(PI), sd(PI)/length(PI), min(PI), max(PI))
-t.test(subset(all.chrom$PI, all.chrom$status=="plg"), subset(all.chrom$PI, all.chrom$status=="non"))
+wilcox.test(subset(all.chrom$PI, all.chrom$status=="plg"), subset(all.chrom$PI, all.chrom$status=="non"))
 ks.test(subset(all.chrom$PI, all.chrom$status=="plg"), subset(all.chrom$PI, all.chrom$status=="non"))
 
 #Summarize pi on chromosome III and test if the mean and distribution differs by plg-1 genotype
 summarize(group_by(chr3, status), mean(PI), sd(PI)/length(PI), min(N_VARIANTS), max(N_VARIANTS), mean(N_VARIANTS))
-t.test(subset(chr3$PI, chr3$status=="plg"), subset(chr3$PI, chr3$status=="non"))
+wilcox.test(subset(chr3$PI, chr3$status=="plg"), subset(chr3$PI, chr3$status=="non"))
 ks.test(subset(chr3$N_VARIANTS, chr3$status=="plg"), subset(chr3$N_VARIANTS, chr3$status=="non"))
 
 #Plot pi across chromosome III by genotype
