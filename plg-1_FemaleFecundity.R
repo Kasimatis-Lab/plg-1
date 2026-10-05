@@ -6,6 +6,7 @@ library(ggplot2)
 library(ggbeeswarm)
 library(RColorBrewer)
 library(scales)
+library(fitdistrplus)
 
 #### Analyze Fecundity Data ####
 #Read in pseudo-female fecundity data
@@ -71,7 +72,26 @@ names(z) <- c("male", "strainpair", "pair")
 fem.fecundity.days <- cbind(x, y$geno, z$pair)
 names(fem.fecundity.days) <- c("male", "days", "fecundity", "time", "geno", "pair")
 
-model2 <- glm.nb(fecundity ~ geno + time + geno*time + pair, data = fem.fecundity.days)
+#Examine distribution of female fecundity by day
+descdist(fem.fecundity.days$fecundity, discrete = FALSE, graph = TRUE, boot = 500)
+
+fit_norm <- fitdist(fem.fecundity.days$fecundity, "norm")
+plot(fit_norm)
+
+fit_nbinom <- fitdist(fem.fecundity.days$fecundity, "nbinom")
+plot(fit_nbinom)
+
+fit_gamma <- fitdist(fem.fecundity.days$fecundity, "gamma")
+plot(fit_gamma)
+
+fit.metrics <- lapply(ls(pattern = "fit\\_"), function(variable) {
+  fit = get(variable, envir = .GlobalEnv)
+  with(fit, data.frame(name = variable, aic, loglik))
+})
+do.call(rbind, fit.metrics)
+#The normal distribution and negative binomial distributions are equally good in fit: smallest AICs and largest log-likelihoods.
+
+model2 <- glm(fecundity ~ geno + time + geno*time + pair, family = gaussian(link = "identity"), data = fem.fecundity.days)
 summary(model2)
 PWmodel2 <- glht(model2, linfct = mcp(pair = "Tukey"))
 summary(PWmodel2)
@@ -122,11 +142,11 @@ t.test(subset(sperm$SpermCount, sperm$Strain=="ED3017"), subset(sperm$SpermCount
 t.test(subset(sperm$SpermCount, sperm$Strain=="JU346"), subset(sperm$SpermCount, sperm$Strain=="JT11398"))
 t.test(subset(sperm$SpermCount, sperm$Strain=="EG4725"), subset(sperm$SpermCount, sperm$Strain=="NIC266"))
 
-model1 <- lm(SpermCount ~ Geno, data = sperm)
-summary(model1)
+model3 <- lm(SpermCount ~ Geno, data = sperm)
+summary(model3)
 
-model2 <- lm(SpermCount ~ Geno, data = subset(sperm, Strain != "EG4725" & Strain != "NIC266"))
-summary(model2)
+model4 <- lm(SpermCount ~ Geno, data = subset(sperm, Strain != "EG4725" & Strain != "NIC266"))
+summary(model4)
 
 p1 <- ggplot(data = sperm, (aes(x = SpermCount, y = Strain))) +
   scale_x_continuous(breaks = pretty(sperm$SpermCount, n = 10)) +
@@ -147,5 +167,3 @@ p2 <- ggplot(data = sperm, aes(x = SpermCount)) +
   scale_x_continuous(breaks = pretty(sperm$SpermCount, n = 10)) +
   theme_classic()
 ####
-
-
