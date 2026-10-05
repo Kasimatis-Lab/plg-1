@@ -120,3 +120,23 @@ all <- p3 + geom_quasirandom(data = fecundity.censored,
   theme_classic()
 
 
+#Compare to Zhang et al. (2021) Natural variation in fecundity is correlated with species-wide levels of divergence in Caenorhabditis elegans
+#https://github.com/AndersenLab/swept_broods/tree/main -- File S3
+zhang <- read.table("ZHANG-ET-AL/FileS3_lifetimeFecundity.csv", header = TRUE, sep = ",")
+geno <- read.table("FileS2_Computational_Genotype.txt", header = TRUE, sep = "\t")
+zhang <- merge(zhang, geno, by.x = "strain", by.y = "strain")
+
+summarise(group_by(zhang, plugging_status), mean(mean_b))
+
+support_tree <- read.tree("CaeNDR/WI.20250625.hard-filter.min4.tree")
+
+obj2 <- name.check(support_tree, levels(as.factor(zhang$strain)), data.names = levels(as.factor(zhang$strain)))
+tree.cut2 <- drop.tip(support_tree, obj2$tree_not_data, keep.root.edgue = TRUE)
+name.check(tree.cut2, levels(as.factor(zhang$strain)), data.names = levels(as.factor(zhang$strain)))
+
+model3 <- gls(mean_b ~ plugging_status + genotype + block, data = subset(zhang, plugging_status != "ambiguous"), correlation = corBrownian(1, tree.cut2, form = ~strain))
+summary(model3)
+
+contingency.table <- table(zhang$plugging_status, zhang$genotype)
+chisq.test(contingency.table[2:3,])
+
