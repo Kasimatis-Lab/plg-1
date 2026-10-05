@@ -6,20 +6,24 @@ library(ggbeeswarm)
 
 #### Analyze Pi ####
 #Read in genetic diversity data (genome-wide)
-all.chrom <- read.table("FileS3_GenomeWide_Pi.txt", header = TRUE, sep = "\t")
+all.chrom <- read.table("Dropbox/Plg-1/data_files/FileS3_GenomeWide_Pi.txt", header = TRUE, sep = "\t")
+all.chrom.isotype <- read.table("Dropbox/Plg-1/data_files/FileS_GenomeWide_Isotype_Pi.txt", header = TRUE, sep = "\t")
+all.chrom.isotype.censorHW <- read.table("Dropbox/Plg-1/data_files/FileS_GenomeWide_IsotypeNotHW_Pi.txt", header = TRUE, sep = "\t")
 
 #Read in genetic diversity data (chromosome III)
-chr3 <- read.table("FileS4_Chromosome3_Pi.txt", header = TRUE, sep = "\t")
+chr3 <- read.table("Dropbox/Plg-1/data_files/FileS4_Chromosome3_Pi.txt", header = TRUE, sep = "\t")
+chr3.isotype <- read.table("Dropbox/Plg-1/data_files/FileS_Chromosome3_Isotype_Pi.txt", header = TRUE, sep = "\t")
+chr3.isotype.censorHW <- read.table("Dropbox/Plg-1/data_files/FileS_Chromosome3_IsotypeNotHW_Pi.txt", header = TRUE, sep = "\t")
 
 #Summarize pi genome-wide and test if the mean and distribution differs by plg-1 genotype
-summarize(group_by(all.chrom, status), mean(PI), sd(PI)/length(PI), min(PI), max(PI))
-wilcox.test(subset(all.chrom$PI, all.chrom$status=="plg"), subset(all.chrom$PI, all.chrom$status=="non"))
-ks.test(subset(all.chrom$PI, all.chrom$status=="plg"), subset(all.chrom$PI, all.chrom$status=="non"))
+summarize(group_by(all.chrom, status), mean(PI), sd(PI)/length(PI), min(PI), max(PI), mean(N_VARIANTS))
+wilcox.test(subset(all.chrom.isotype$PI, all.chrom.isotype$status=="plugging"), subset(all.chrom.isotype$PI, all.chrom.isotype$status=="nonplugging"))
+ks.test(subset(all.chrom.isotype$PI, all.chrom.isotype$status=="plugging"), subset(all.chrom.isotype$PI, all.chrom.isotype$status=="nonplugging"))
 
 #Summarize pi on chromosome III and test if the mean and distribution differs by plg-1 genotype
-summarize(group_by(chr3, status), mean(PI), sd(PI)/length(PI), min(N_VARIANTS), max(N_VARIANTS), mean(N_VARIANTS))
-wilcox.test(subset(chr3$PI, chr3$status=="plg"), subset(chr3$PI, chr3$status=="non"))
-ks.test(subset(chr3$N_VARIANTS, chr3$status=="plg"), subset(chr3$N_VARIANTS, chr3$status=="non"))
+summarize(group_by(chr3, status), mean(PI), sd(PI)/length(PI), min(PI), max(PI), mean(N_VARIANTS))
+wilcox.test(subset(chr3.isotype$PI, chr3.isotype$status=="plugging"), subset(chr3.isotype$PI, chr3.isotype$status=="nonplugging"))
+ks.test(subset(chr3.isotype$N_VARIANTS, chr3.isotype$status=="plugging"), subset(chr3.isotype$N_VARIANTS, chr3.isotype$status=="nonplugging"))
 
 #Plot pi across chromosome III by genotype
 plot(plg.pi.chr3$BIN_START, plg.pi.chr3$PI, col = alpha("#9970AB", 0.5), pch = 19, las = 1, bty = "l",
@@ -43,16 +47,16 @@ variants <- p1 + geom_quasirandom(data = x, aes(x = status, y = N_VARIANTS),
 
 #### Analyze Computationally Inferred Genotype Data ####
 #Read in genotypes
-geno <- read.table("FileS2_Computational_Genotype.txt", header = TRUE, sep = "\t")
+geno <- read.table("Dropbox/Plg-1/data_files/FileS2_Computational_Genotype.txt", header = TRUE, sep = "\t")
 
 table(geno$plugging_status)
 
 #Test if the mean number of Cer1 elements differs by plg-1 genotype
-t.test(subset(geno$cer1_copies, geno$plugging_status=="plugging"), subset(geno$cer1_copies, geno$plugging_status=="nonplugging"))
+wilcox.test(subset(geno$cer1_copies, geno$plugging_status=="plugging"), subset(geno$cer1_copies, geno$plugging_status=="nonplugging"))
 
 
 #Color phylogeny by genotype
-full_tree <- read.tree("WI.20250625.hard-filter.min4.tree")
+full_tree <- read.tree("Downloads/WI.20250625.hard-filter.min4.tree")
 ##Order to match tree order
 plot_ord <- full_tree$tip.label
 geno.plotting <- geno[, 1:3]
@@ -76,4 +80,36 @@ cer <- p2 + geom_quasirandom(data = subset(geno, plugging_status != "ambiguous")
 
 
 dev.copy2pdf(file="~/Desktop/2026.05.25_Chr3pi.pdf", useDingbats = FALSE, family = "sans", width = 6, height = 4.5)
+####
+
+
+#### Isotype-Strain Matching ####
+strain.data <- read.table("20250625_c_elegans_strain_data.csv", header = TRUE, sep = ",")
+new.geno <- merge(geno, strain.data, by.x = "strain", by.y = "strain")
+new.geno <- subset(new.geno, plugging_status != "ambiguous")
+
+iso.matching <- c();
+for (i in 1:length(levels(as.factor(new.geno$isotype)))) {
+  x <- subset(new.geno, isotype == levels(as.factor(new.geno$isotype))[i])$plugging_status
+  y <- length(unique(x)) == 1
+  
+  out <- data.frame(isotype = levels(as.factor(new.geno$isotype))[i],
+                    matching = y,
+                    status = x[1],
+                    hawaiian = subset(new.geno, isotype == levels(as.factor(new.geno$isotype))[i])$pacific_island[1],
+                    latitude = subset(new.geno, isotype == levels(as.factor(new.geno$isotype))[i])$latitude[1],
+                    longitude = subset(new.geno, isotype == levels(as.factor(new.geno$isotype))[i])$longitude[1])
+  
+  iso.matching <- rbind(iso.matching, out)
+}
+
+p1 <- ggplot(iso.matching, aes(x = longitude, y = latitude)) +
+  xlim(-160, 180) +
+  xlab("Longitude") + ylab("Latitude") + 
+  theme_classic() +
+  theme(panel.grid = element_blank())
+
+mapped <- p1 + geom_point(data = iso.matching, aes(x = longitude, y = latitude, color = factor(status)), alpha = 0.25, cex = 2.5) +
+          scale_color_manual(values = c("#74C476", "#9970AB"))
+
 ####
