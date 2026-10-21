@@ -44,7 +44,7 @@ byGeno <- as.data.frame(summarise(group_by(ce.pad.obs, crossGeno), length(SpermP
 names(byGeno) <- c("cross", "scored", "sperm.present", "in.spermathecae", "in.uterus", "in.plug")
 byGeno$freq <- signif(byGeno$sperm.present / byGeno$scored, digits = 3)
 
-model1 <- lm(SpermPresent ~ m1.geno + Replicate, data = ce.pad.obs)
+model1 <- lm(SpermPresent ~ m1.geno + m2.geno + Replicate, data = ce.pad.obs)
 summary(model1)
 
 model2 <- lm(spermathecae ~ m1.geno, data = ce.pad.obs)
@@ -55,9 +55,6 @@ summary(model3)
 
 model4 <- lm(plug ~ m1.geno, data = ce.pad.obs)
 summary(model4)
-
-model5 <- lm(SpermPresent ~ m2.geno + Replicate, data = ce.pad.obs)
-summary(model5)
 
 #Is the observed second male mating different from first male mating success?
 mated <- read.table("Dropbox/Plg-1/data_files/FileS_CE_PlugSignalingNull.txt", header = TRUE, sep = "\t")
